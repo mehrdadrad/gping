@@ -5,13 +5,15 @@ option go_package = ".;proto";
 message PingRequest {
   string dst_addr = 1;
   int32 count = 2;
-  int32 interval = 3;
+  int32 ttl = 3;
+  int32 interval = 4;
 }
 
 message PingReply {
   double rtt = 1;
   int32 seq = 2;
-  string addr = 3;
+  int32 ttl = 3;
+  string addr = 4;
 }
 
 service Ping {
