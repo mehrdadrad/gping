@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/grpclog"
 
 	pb "github.com/mehrdadrad/gping/proto"
 	"github.com/mehrdadrad/ping"
-	cli "github.com/urfave/cli/v2"
 )
 
 type params struct {
@@ -24,8 +23,6 @@ type params struct {
 }
 
 type server struct{}
-
-var log grpclog.LoggerV2
 
 func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) error {
 	p, err := ping.New(pingReq.DstAddr)
@@ -43,69 +40,21 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 	}
 
 	for r := range rc {
-		stream.Send(&pb.PingReply{Rtt: r.RTT})
+		stream.Send(&pb.PingReply{
+			Rtt:  r.RTT,
+			Ttl:  int32(r.TTL),
+			Seq:  int32(r.Sequence),
+			Addr: r.Addr,
+		})
 	}
 	return nil
 }
 
-func init() {
-	log = grpclog.NewLoggerV2(os.Stdout, os.Stdout, os.Stdout)
-}
-
 func main() {
-	p := params{}
-
-	flags := []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "server",
-			Aliases: []string{"s"},
-			Usage:   "-server or -s",
-			EnvVars: []string{"GPING_SERVER"},
-		},
-		&cli.IntFlag{
-			Name:    "count",
-			Aliases: []string{"c"},
-			Usage:   "-count or -c",
-			EnvVars: []string{"GPING_COUNT"},
-		},
-		&cli.IntFlag{
-			Name:    "ttl",
-			Aliases: []string{"t"},
-			Usage:   "-ttl or -t",
-			EnvVars: []string{"GPING_TTL"},
-		},
-		&cli.StringFlag{
-			Name:    "remote",
-			Aliases: []string{"r"},
-			Usage:   "-remote 192.168.10.12:3055",
-			EnvVars: []string{"GPING_REMOTE"},
-		},
-		&cli.StringFlag{
-			Name:    "bind",
-			Aliases: []string{"b"},
-			Usage:   "-bind 192.168.10.12:3055",
-			EnvVars: []string{"GPING_BIND"},
-		},
-	}
-	app := &cli.App{
-		Flags: flags,
-		Action: func(c *cli.Context) error {
-			p.mode = c.Bool("server")
-			if c.Int("count") == 0 {
-				p.count = 4
-			} else {
-				p.count = c.Int("count")
-			}
-
-			p.host = c.Args().Get(0)
-
-			return nil
-		},
-	}
-
-	err := app.Run(os.Args)
+	p, err := getCli()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	if p.mode {
@@ -154,6 +103,6 @@ func pingClient(p params) {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("%.2f\n", p.Rtt)
+		fmt.Printf("%#v\n", p)
 	}
 }
