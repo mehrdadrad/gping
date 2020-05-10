@@ -6,7 +6,7 @@ message PingRequest {
   string dst_addr = 1;
   int32 count = 2;
   int32 ttl = 3;
-  int32 interval = 4;
+  string interval = 4;
 }
 
 message PingReply {

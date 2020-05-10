@@ -46,6 +46,13 @@ func getCli() (params, error) {
 			EnvVars: []string{"GPING_TTL"},
 		},
 		&cli.StringFlag{
+			Name:    "interval",
+			Aliases: []string{"i"},
+			Usage:   "-intervale or -i 2s",
+			Value:   "1s",
+			EnvVars: []string{"GPING_TTL"},
+		},
+		&cli.StringFlag{
 			Name:    "remote",
 			Aliases: []string{"r"},
 			Usage:   "-remote 192.168.10.12:3055",
@@ -65,6 +72,7 @@ func getCli() (params, error) {
 			p.mode = c.Bool("server")
 			p.count = c.Int("count")
 			p.ttl = c.Int("ttl")
+			p.interval = c.String("interval")
 
 			p.host = c.Args().Get(0)
 			if c.NArg() < 1 && !p.mode {

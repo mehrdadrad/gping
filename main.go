@@ -15,11 +15,12 @@ import (
 )
 
 type params struct {
-	mode  bool
-	host  string
-	bind  string
-	count int
-	ttl   int
+	mode     bool
+	host     string
+	bind     string
+	count    int
+	ttl      int
+	interval string
 }
 
 type server struct{}
@@ -31,7 +32,8 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 	}
 
 	p.SetCount(int(pingReq.Count))
-	p.SetInterval("1s")
+	p.SetTTL(int(pingReq.Ttl))
+	p.SetInterval(pingReq.Interval)
 	p.SetPrivilegedICMP(false)
 
 	rc, err := p.RunWithContext(stream.Context())
@@ -88,7 +90,12 @@ func pingClient(p params) {
 	c := pb.NewPingClient(conn)
 	r, err := c.GetPing(
 		context.Background(),
-		&pb.PingRequest{DstAddr: p.host, Count: int32(p.count)})
+		&pb.PingRequest{
+			DstAddr:  p.host,
+			Count:    int32(p.count),
+			Ttl:      int32(p.ttl),
+			Interval: p.interval,
+		})
 
 	if err != nil {
 		log.Fatal(err)
@@ -103,6 +110,11 @@ func pingClient(p params) {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("%#v\n", p)
+		fmt.Println(fmtPingLine(p))
 	}
+}
+
+func fmtPingLine(p *pb.PingReply) string {
+	return fmt.Sprintf("64 bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms",
+		p.Addr, p.Seq, p.Ttl, p.Rtt)
 }
