@@ -50,8 +50,8 @@ func pingClient(p params) {
 func fmtPingLine(p *pb.PingReply) string {
 	if p.Err != "" {
 		return fmt.Sprintf("error: %s", p.Err)
-	} else {
-		return fmt.Sprintf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms",
-			p.Size, p.Addr, p.Seq, p.Ttl, p.Rtt)
 	}
+
+	return fmt.Sprintf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms",
+		p.Size, p.Addr, p.Seq, p.Ttl, p.Rtt)
 }
