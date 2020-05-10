@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
+	"os"
 
 	pb "github.com/mehrdadrad/gping/proto"
 	"google.golang.org/grpc"
@@ -34,7 +36,11 @@ func pingClient(p params) {
 	for i := 0; i < p.count; i++ {
 		p, err := r.Recv()
 		if err != nil {
-			log.Fatal(err)
+			if err == io.EOF {
+				os.Exit(1)
+			} else {
+				log.Fatal(err)
+			}
 		}
 
 		fmt.Println(fmtPingLine(p))
@@ -42,6 +48,10 @@ func pingClient(p params) {
 }
 
 func fmtPingLine(p *pb.PingReply) string {
-	return fmt.Sprintf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms",
-		p.Size, p.Addr, p.Seq, p.Ttl, p.Rtt)
+	if p.Err != "" {
+		return fmt.Sprintf("error: %s", p.Err)
+	} else {
+		return fmt.Sprintf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms",
+			p.Size, p.Addr, p.Seq, p.Ttl, p.Rtt)
+	}
 }

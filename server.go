@@ -12,9 +12,11 @@ import (
 type server struct{}
 
 func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) error {
+	var errStr string
+
 	p, err := ping.New(pingReq.DstAddr)
 	if err != nil {
-		log.Fatal(err)
+		return stream.Send(&pb.PingReply{Err: err.Error()})
 	}
 
 	p.SetCount(int(pingReq.Count))
@@ -25,17 +27,23 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 
 	rc, err := p.RunWithContext(stream.Context())
 	if err != nil {
-		log.Fatal(err)
+		return stream.Send(&pb.PingReply{Err: err.Error()})
 	}
 
 	for r := range rc {
+		if r.Error != nil {
+			errStr = r.Error.Error()
+		}
 		stream.Send(&pb.PingReply{
 			Rtt:  r.RTT,
 			Ttl:  int32(r.TTL),
 			Seq:  int32(r.Sequence),
 			Addr: r.Addr,
 			Size: int32(r.Size),
+			Err:  errStr,
 		})
+
+		errStr = ""
 	}
 	return nil
 }

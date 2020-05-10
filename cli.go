@@ -75,13 +75,15 @@ func getCli() (params, error) {
 	app := &cli.App{
 		Flags: flags,
 		Action: func(c *cli.Context) error {
-			p.mode = c.Bool("server")
-			p.count = c.Int("count")
-			p.ttl = c.Int("ttl")
-			p.size = c.Int("size")
-			p.interval = c.String("interval")
-			p.remote = c.String("remote")
-			p.bind = c.String("bind")
+			p = params{
+				mode:     c.Bool("server"),
+				bind:     c.String("bind"),
+				remote:   c.String("remote"),
+				count:    c.Int("count"),
+				ttl:      c.Int("ttl"),
+				size:     c.Int("size"),
+				interval: c.String("interval"),
+			}
 
 			p.host = c.Args().Get(0)
 			if c.NArg() < 1 && !p.mode {

@@ -16,6 +16,7 @@ message PingReply {
   int32 ttl = 3;
   int32 size = 4;
   string addr = 5;
+  string err = 6;
 }
 
 service Ping {
