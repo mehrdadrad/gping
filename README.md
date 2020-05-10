@@ -4,6 +4,8 @@
 
 gping is a network tool to ping a target from a remote host. it works as client-server arch through gRPC protocol. it doesn't execute the ping shell command at the remote host instead it runs ping through a [Golang ping library](https://github.com/mehrdadrad/ping). use cases can be measurement full mesh network latency between nodes / data center or ping targets from different data center without SSH access to remote host.
 
+![gping](/gping.png?raw=true "gping")
+
 # Server side
 ```
 #gping -server
