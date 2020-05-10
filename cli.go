@@ -28,7 +28,7 @@ func getCli() (params, error) {
 		&cli.BoolFlag{
 			Name:    "server",
 			Aliases: []string{"s"},
-			Usage:   "-server or -s",
+			Usage:   "-server or -s runs server",
 			EnvVars: []string{"GPING_SERVER"},
 		},
 		&cli.IntFlag{
@@ -45,12 +45,18 @@ func getCli() (params, error) {
 			Value:   64,
 			EnvVars: []string{"GPING_TTL"},
 		},
+		&cli.IntFlag{
+			Name:    "size",
+			Usage:   "-size bytes (data + ICMP header)",
+			Value:   64,
+			EnvVars: []string{"GPING_SIZE"},
+		},
 		&cli.StringFlag{
 			Name:    "interval",
 			Aliases: []string{"i"},
 			Usage:   "-intervale or -i 2s",
 			Value:   "1s",
-			EnvVars: []string{"GPING_TTL"},
+			EnvVars: []string{"GPING_INTERVAL"},
 		},
 		&cli.StringFlag{
 			Name:    "remote",
@@ -62,7 +68,7 @@ func getCli() (params, error) {
 			Name:    "bind",
 			Aliases: []string{"b"},
 			Usage:   "-bind 192.168.10.12:3055",
-			Value:   ":3055",
+			Value:   "0.0.0.0:3055",
 			EnvVars: []string{"GPING_BIND"},
 		},
 	}
@@ -72,12 +78,20 @@ func getCli() (params, error) {
 			p.mode = c.Bool("server")
 			p.count = c.Int("count")
 			p.ttl = c.Int("ttl")
+			p.size = c.Int("size")
 			p.interval = c.String("interval")
+			p.remote = c.String("remote")
+			p.bind = c.String("bind")
 
 			p.host = c.Args().Get(0)
 			if c.NArg() < 1 && !p.mode {
 				cli.ShowAppHelp(c)
 				return errors.New("host not specified")
+			}
+
+			if len(p.remote) < 1 && !p.mode {
+				cli.ShowAppHelp(c)
+				return errors.New("remote not specified")
 			}
 
 			return nil
