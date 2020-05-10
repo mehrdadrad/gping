@@ -9,8 +9,10 @@ type params struct {
 	mode     bool
 	host     string
 	bind     string
+	remote   string
 	count    int
 	ttl      int
+	size     int
 	interval string
 }
 

@@ -19,6 +19,7 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 
 	p.SetCount(int(pingReq.Count))
 	p.SetTTL(int(pingReq.Ttl))
+	p.SetPacketSize(int(pingReq.Size))
 	p.SetInterval(pingReq.Interval)
 	p.SetPrivilegedICMP(false)
 
@@ -33,16 +34,19 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 			Ttl:  int32(r.TTL),
 			Seq:  int32(r.Sequence),
 			Addr: r.Addr,
+			Size: int32(r.Size),
 		})
 	}
 	return nil
 }
 
 func pingServer(p params) {
-	l, err := net.Listen("tcp", ":8055")
+	l, err := net.Listen("tcp", p.bind)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Println("gping server has been started on ", l.Addr().String())
 
 	s := grpc.NewServer()
 	pb.RegisterPingServer(s, &server{})

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 
 	pb "github.com/mehrdadrad/gping/proto"
@@ -11,7 +10,7 @@ import (
 )
 
 func pingClient(p params) {
-	conn, err := grpc.Dial("localhost:8055", grpc.WithInsecure())
+	conn, err := grpc.Dial(p.remote, grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,6 +23,7 @@ func pingClient(p params) {
 			DstAddr:  p.host,
 			Count:    int32(p.count),
 			Ttl:      int32(p.ttl),
+			Size:     int32(p.size),
 			Interval: p.interval,
 		})
 
@@ -33,9 +33,6 @@ func pingClient(p params) {
 
 	for i := 0; i < p.count; i++ {
 		p, err := r.Recv()
-		if err == io.EOF {
-			log.Fatal("end of ping!")
-		}
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -45,6 +42,6 @@ func pingClient(p params) {
 }
 
 func fmtPingLine(p *pb.PingReply) string {
-	return fmt.Sprintf("64 bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms",
-		p.Addr, p.Seq, p.Ttl, p.Rtt)
+	return fmt.Sprintf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms",
+		p.Size, p.Addr, p.Seq, p.Ttl, p.Rtt)
 }
