@@ -34,14 +34,14 @@ func getCli() (params, error) {
 		&cli.IntFlag{
 			Name:    "count",
 			Aliases: []string{"c"},
-			Usage:   "-count or -c",
+			Usage:   "-count or -c sets ping count",
 			Value:   4,
 			EnvVars: []string{"GPING_COUNT"},
 		},
 		&cli.IntFlag{
 			Name:    "ttl",
 			Aliases: []string{"t"},
-			Usage:   "-ttl or -t",
+			Usage:   "-ttl or -t sets time to live outgoing packets",
 			Value:   64,
 			EnvVars: []string{"GPING_TTL"},
 		},
@@ -54,7 +54,7 @@ func getCli() (params, error) {
 		&cli.StringFlag{
 			Name:    "interval",
 			Aliases: []string{"i"},
-			Usage:   "-intervale or -i 2s",
+			Usage:   "-intervale or -i sets time interval in format ns,us,ms,s",
 			Value:   "1s",
 			EnvVars: []string{"GPING_INTERVAL"},
 		},
@@ -71,6 +71,16 @@ func getCli() (params, error) {
 			Value:   "0.0.0.0:3055",
 			EnvVars: []string{"GPING_BIND"},
 		},
+		&cli.BoolFlag{
+			Name:    "json",
+			Usage:   "-json prints statistics in json format",
+			EnvVars: []string{"GPING_JSON"},
+		},
+		&cli.BoolFlag{
+			Name:    "silent",
+			Usage:   "-silent prints just statistics",
+			EnvVars: []string{"GPING_SILENT"},
+		},
 	}
 	app := &cli.App{
 		Flags: flags,
@@ -82,6 +92,8 @@ func getCli() (params, error) {
 				count:    c.Int("count"),
 				ttl:      c.Int("ttl"),
 				size:     c.Int("size"),
+				json:     c.Bool("json"),
+				silent:   c.Bool("silent"),
 				interval: c.String("interval"),
 			}
 
@@ -98,7 +110,7 @@ func getCli() (params, error) {
 
 			return nil
 		},
-		Version: "v0.1.0",
+		Version: "v0.2.0",
 	}
 
 	err := app.Run(os.Args)

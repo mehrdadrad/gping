@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	pb "github.com/mehrdadrad/gping/proto"
@@ -47,13 +46,4 @@ func pingClient(p params) chan *pb.PingReply {
 	}()
 
 	return resp
-}
-
-func pingPrint(ping *pb.PingReply, p params) {
-	if ping.Err != "" {
-		fmt.Printf("error: %s\n", ping.Err)
-	}
-
-	fmt.Printf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n",
-		ping.Size, ping.Addr, ping.Seq, ping.Ttl, ping.Rtt)
 }

@@ -8,6 +8,8 @@ import (
 
 type params struct {
 	mode     bool
+	json     bool
+	silent   bool
 	host     string
 	bind     string
 	remote   string
@@ -18,7 +20,10 @@ type params struct {
 }
 
 func main() {
-	var wg sync.WaitGroup
+	var (
+		wg sync.WaitGroup
+		pr = printer{}
+	)
 
 	p, err := getCli()
 	if err != nil {
@@ -32,7 +37,7 @@ func main() {
 		wg.Wait()
 	} else {
 		for r := range pingClient(p) {
-			pingPrint(r, p)
+			pr.print(r, p)
 		}
 	}
 }
