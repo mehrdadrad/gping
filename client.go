@@ -3,20 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
-	"os"
 
 	pb "github.com/mehrdadrad/gping/proto"
 	"google.golang.org/grpc"
 )
 
-func pingClient(p params) {
+func pingClient(p params) chan *pb.PingReply {
+	resp := make(chan *pb.PingReply, 1)
+
 	conn, err := grpc.Dial(p.remote, grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer conn.Close()
 
 	c := pb.NewPingClient(conn)
 	r, err := c.GetPing(
@@ -33,25 +32,28 @@ func pingClient(p params) {
 		log.Fatal(err)
 	}
 
-	for i := 0; i < p.count; i++ {
-		p, err := r.Recv()
-		if err != nil {
-			if err == io.EOF {
-				os.Exit(1)
-			} else {
-				log.Fatal(err)
+	go func() {
+		for i := 0; i < p.count; i++ {
+			p, err := r.Recv()
+			if err != nil {
+				resp <- &pb.PingReply{Err: err.Error()}
+				break
 			}
+			resp <- p
 		}
 
-		fmt.Println(fmtPingLine(p))
-	}
+		conn.Close()
+		close(resp)
+	}()
+
+	return resp
 }
 
-func fmtPingLine(p *pb.PingReply) string {
-	if p.Err != "" {
-		return fmt.Sprintf("error: %s", p.Err)
+func pingPrint(ping *pb.PingReply, p params) {
+	if ping.Err != "" {
+		fmt.Printf("error: %s\n", ping.Err)
 	}
 
-	return fmt.Sprintf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms",
-		p.Size, p.Addr, p.Seq, p.Ttl, p.Rtt)
+	fmt.Printf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n",
+		ping.Size, ping.Addr, ping.Seq, ping.Ttl, ping.Rtt)
 }
