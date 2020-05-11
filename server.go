@@ -31,13 +31,13 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 	}
 
 	for r := range rc {
-		if r.Error != nil {
-			errStr = r.Error.Error()
+		if r.Err != nil {
+			errStr = r.Err.Error()
 		}
 		stream.Send(&pb.PingReply{
 			Rtt:  r.RTT,
 			Ttl:  int32(r.TTL),
-			Seq:  int32(r.Sequence),
+			Seq:  int32(r.Seq),
 			Addr: r.Addr,
 			Size: int32(r.Size),
 			Err:  errStr,
