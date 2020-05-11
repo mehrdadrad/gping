@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestServer(t *testing.T) {
 	p := params{
@@ -29,6 +32,14 @@ func TestServer(t *testing.T) {
 	if r.Seq != 0 {
 		t.Error("expected Seq 0 but got", r.Seq)
 	}
+
+	if r.Rtt == 0 {
+		t.Error("expected RTT greater than zero but got", r.Rtt)
+	}
+
+	if r.Addr != "127.0.0.1" {
+		t.Error("expected addr: 127.0.0.1 but got", r.Addr)
+	}
 }
 
 func TestServerTimeout(t *testing.T) {
@@ -51,4 +62,24 @@ func TestServerTimeout(t *testing.T) {
 		t.Error(r.Err)
 	}
 
+}
+
+func TestGetCLI(t *testing.T) {
+	os.Args = []string{"gping", "-c", "100", "-remote", "localhost:3055", "google.com"}
+	p, err := getCli()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if p.count != 100 {
+		t.Error("expected count 100 but got", p.count)
+	}
+
+	if p.host != "google.com" {
+		t.Error("expected host google.com but got", p.host)
+	}
+
+	if p.remote != "localhost:3055" {
+		t.Error("expected remote localhost:3055 but got", p.remote)
+	}
 }
