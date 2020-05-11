@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 )
 
 type params struct {
@@ -17,6 +18,8 @@ type params struct {
 }
 
 func main() {
+	var wg sync.WaitGroup
+
 	p, err := getCli()
 	if err != nil {
 		fmt.Println(err)
@@ -24,9 +27,12 @@ func main() {
 	}
 
 	if p.mode {
+		wg.Add(1)
 		pingServer(p)
+		wg.Wait()
 	} else {
-		pingClient(p)
+		for r := range pingClient(p) {
+			pingPrint(r, p)
+		}
 	}
-
 }
