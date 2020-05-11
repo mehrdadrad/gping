@@ -48,7 +48,7 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 	return nil
 }
 
-func pingServer(p params) {
+func pingServer(p params) *grpc.Server {
 	l, err := net.Listen("tcp", p.bind)
 	if err != nil {
 		log.Fatal(err)
@@ -57,8 +57,12 @@ func pingServer(p params) {
 	log.Println("gping server has been started on ", l.Addr().String())
 
 	s := grpc.NewServer()
-	pb.RegisterPingServer(s, &server{})
-	if err := s.Serve(l); err != nil {
-		log.Fatal(err)
-	}
+	go func() {
+		pb.RegisterPingServer(s, &server{})
+		if err := s.Serve(l); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	return s
 }
