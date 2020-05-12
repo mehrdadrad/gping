@@ -28,6 +28,8 @@ github.com/mehrdadrad/ping v0.1.0 h1:m/7qa1Zg2LQBb53NnGXaTUaOv8TQB16Y4oQjEWS7F0c
 github.com/mehrdadrad/ping v0.1.0/go.mod h1:vE0YABxiaMiFrezl/hF8feCi3CHlMtuIxeHAjVTrNXs=
 github.com/mehrdadrad/ping v0.2.0 h1:JLeDsWAbnhlepvWwqrHPwmBPMw/7JxxsAoZO8psyPp8=
 github.com/mehrdadrad/ping v0.2.0/go.mod h1:14BBOf7wioB6ftnrb9Vv06Zh1sf0Is2u5MZuKrXahis=
+github.com/mehrdadrad/ping v0.2.1-0.20200512143048-eab79309159c h1:VNuTml5OBPkUgwsvikKdFrDZfYF4GqqkaEW8ygpi4eA=
+github.com/mehrdadrad/ping v0.2.1-0.20200512143048-eab79309159c/go.mod h1:14BBOf7wioB6ftnrb9Vv06Zh1sf0Is2u5MZuKrXahis=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/russross/blackfriday/v2 v2.0.1 h1:lPqVAte+HuHNfhJ/0LC98ESWRz8afy9tM/0RK8m9o+Q=
