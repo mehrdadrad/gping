@@ -12,6 +12,7 @@ func TestServer(t *testing.T) {
 		host:     "127.0.0.1",
 		count:    1,
 		interval: "1s",
+		timeout:  "2s",
 		ttl:      64,
 		size:     64,
 	}
@@ -49,6 +50,7 @@ func TestServerTimeout(t *testing.T) {
 		host:     "127.0.0.55",
 		count:    1,
 		interval: "1s",
+		timeout:  "2s",
 		ttl:      64,
 		size:     64,
 	}
@@ -81,5 +83,37 @@ func TestGetCLI(t *testing.T) {
 
 	if p.remote != "localhost:3055" {
 		t.Error("expected remote localhost:3055 but got", p.remote)
+	}
+}
+
+func TestGetCLITimeoutValidation(t *testing.T) {
+	os.Args = []string{"gping", "-W", "2", "-remote", "localhost:3055", "google.com"}
+	_, err := getCli()
+	if err == nil {
+		t.Error("timeout validation error")
+	}
+}
+
+func TestGetCLIIntervalValidation(t *testing.T) {
+	os.Args = []string{"gping", "-i", "2", "-remote", "localhost:3055", "google.com"}
+	_, err := getCli()
+	if err == nil {
+		t.Error("interval validation error")
+	}
+}
+
+func TestGetCLIRemoteValidation(t *testing.T) {
+	os.Args = []string{"gping", "-i", "2", "-remote", "localhost", "google.com"}
+	_, err := getCli()
+	if err == nil {
+		t.Error("remote validation error")
+	}
+}
+
+func TestGetCLIBindValidation(t *testing.T) {
+	os.Args = []string{"gping", "-server", "-bind", "0.0.0.0"}
+	_, err := getCli()
+	if err == nil {
+		t.Error("bind validation error")
 	}
 }
