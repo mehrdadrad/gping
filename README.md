@@ -38,16 +38,18 @@ gping -c 5 -json -remote 192.168.10.15:3055 googl.com
   gping [options] host  
   
   options:
-  --server, -s                -server or -s runs server (default: false) [$GPING_SERVER]
-  --count value, -c value     -count or -c sets ping count (default: 4) [$GPING_COUNT]
-  --ttl value, -t value       -ttl or -t sets time to live outgoing packets (default: 64) [$GPING_TTL]
-  --size value                -size bytes (data + ICMP header) (default: 64) [$GPING_SIZE]
-  --interval value, -i value  -intervale or -i sets time interval in format ns,us,ms,s (default: "1s") [$GPING_INTERVAL]
-  --remote value, -r value    -remote 192.168.10.12:3055 [$GPING_REMOTE]
-  --bind value, -b value      -bind 192.168.10.12:3055 (default: "0.0.0.0:3055") [$GPING_BIND]
-  --json                      -json prints statistics in json format (default: false) [$GPING_JSON]
-  --silent                    -silent prints just statistics (default: false) [$GPING_SILENT]
-  --privileged, -p            -privileged or -p enables ICMP privilaged mode (default: false) [$GPING_PRIVILAGED]
+  --count value, -c value     sets ping count (default: 4) [$GPING_COUNT]
+  --ttl value, -t value       sets the IP Time to Live (default: 64) [$GPING_TTL]
+  --tos value, -q value       sets quality of service in ICMP datagram (default: 0) [$GPING_TOS]
+  --size value                sets size in bytes (data + ICMP header) (default: 64) [$GPING_SIZE]
+  --interval value, -i value  sets time interval in format ns,us,ms,s (default: "1s") [$GPING_INTERVAL]
+  --timeout value, -W value   sets time to wait for a respons in format ns,us,ms,s (default: "2s") [$GPING_TIMEOUT]
+  --remote value, -r value    sets remote server IP_ADDR:PORT [$GPING_REMOTE]
+  --json                      prints statistics in json format (default: false) [$GPING_JSON]
+  --silent                    prints just statistics (default: false) [$GPING_SILENT]
+  --server, -s                runs server (default: false) [$GPING_SERVER]
+  --bind value, -b value      sets bind IP_ADDR:PORT [server] (default: "0.0.0.0:3055") [$GPING_BIND]
+  --privileged, -p            enables ICMP privileged mode [server] (default: false) [$GPING_PRIVILEGED]
   --help, -h                  show help (default: false)
   --version, -v               print the version (default: false)
 ```
