@@ -7,6 +7,20 @@ import (
 	cli "github.com/urfave/cli/v2"
 )
 
+type params struct {
+	mode       bool
+	json       bool
+	silent     bool
+	privileged bool
+	host       string
+	bind       string
+	remote     string
+	count      int
+	ttl        int
+	size       int
+	interval   string
+}
+
 func getCli() (params, error) {
 	p := params{}
 
@@ -81,20 +95,27 @@ func getCli() (params, error) {
 			Usage:   "-silent prints just statistics",
 			EnvVars: []string{"GPING_SILENT"},
 		},
+		&cli.BoolFlag{
+			Name:    "privileged",
+			Aliases: []string{"p"},
+			Usage:   "-privileged or -p enables ICMP privilaged mode",
+			EnvVars: []string{"GPING_PRIVILAGED"},
+		},
 	}
 	app := &cli.App{
 		Flags: flags,
 		Action: func(c *cli.Context) error {
 			p = params{
-				mode:     c.Bool("server"),
-				bind:     c.String("bind"),
-				remote:   c.String("remote"),
-				count:    c.Int("count"),
-				ttl:      c.Int("ttl"),
-				size:     c.Int("size"),
-				json:     c.Bool("json"),
-				silent:   c.Bool("silent"),
-				interval: c.String("interval"),
+				mode:       c.Bool("server"),
+				bind:       c.String("bind"),
+				remote:     c.String("remote"),
+				count:      c.Int("count"),
+				ttl:        c.Int("ttl"),
+				size:       c.Int("size"),
+				json:       c.Bool("json"),
+				silent:     c.Bool("silent"),
+				privileged: c.Bool("privileged"),
+				interval:   c.String("interval"),
 			}
 
 			p.host = c.Args().Get(0)

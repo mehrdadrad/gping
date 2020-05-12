@@ -3,27 +3,16 @@ package main
 import (
 	"fmt"
 	"os"
-	"sync"
+	"os/signal"
 )
-
-type params struct {
-	mode     bool
-	json     bool
-	silent   bool
-	host     string
-	bind     string
-	remote   string
-	count    int
-	ttl      int
-	size     int
-	interval string
-}
 
 func main() {
 	var (
-		wg sync.WaitGroup
-		pr = printer{}
+		pr  = printer{}
+		sig = make(chan os.Signal, 1)
 	)
+
+	signal.Notify(sig, os.Interrupt)
 
 	p, err := getCli()
 	if err != nil {
@@ -32,12 +21,12 @@ func main() {
 	}
 
 	if p.mode {
-		wg.Add(1)
-		pingServer(p)
-		wg.Wait()
+		s := pingServer(p)
+		<-sig
+		s.Stop()
 	} else {
 		for r := range pingClient(p) {
-			pr.print(r, p)
+			pr.print(r, p, sig)
 		}
 	}
 }

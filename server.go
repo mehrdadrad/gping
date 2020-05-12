@@ -9,7 +9,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-type server struct{}
+type server struct {
+	privileged bool
+}
 
 func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) error {
 	var errStr string
@@ -23,7 +25,7 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 	p.SetTTL(int(pingReq.Ttl))
 	p.SetPacketSize(int(pingReq.Size))
 	p.SetInterval(pingReq.Interval)
-	p.SetPrivilegedICMP(false)
+	p.SetPrivilegedICMP(s.privileged)
 
 	rc, err := p.RunWithContext(stream.Context())
 	if err != nil {
@@ -58,7 +60,7 @@ func pingServer(p params) *grpc.Server {
 
 	s := grpc.NewServer()
 	go func() {
-		pb.RegisterPingServer(s, &server{})
+		pb.RegisterPingServer(s, &server{p.privileged})
 		if err := s.Serve(l); err != nil {
 			log.Fatal(err)
 		}

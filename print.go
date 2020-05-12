@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/mehrdadrad/gping/proto"
 )
@@ -15,7 +16,7 @@ type printer struct {
 	loss    int
 }
 
-func (pr *printer) print(ping *proto.PingReply, p params) {
+func (pr *printer) print(ping *proto.PingReply, p params, sig chan os.Signal) {
 	pr.counter++
 
 	if len(ping.Err) < 1 {
@@ -27,17 +28,32 @@ func (pr *printer) print(ping *proto.PingReply, p params) {
 	}
 
 	if p.json {
-		if p.count == pr.counter {
+		select {
+		case <-sig:
 			pr.statisticsJSON()
+			os.Exit(0)
+		default:
+			if p.count == pr.counter {
+				pr.statisticsJSON()
+			}
 		}
+		return
+	}
+
+	if p.count == pr.counter {
+		printLine(ping, p)
+		pr.statistics()
 	} else {
-		if p.count == pr.counter {
+		select {
+		case <-sig:
 			printLine(ping, p)
 			pr.statistics()
-		} else {
+			os.Exit(0)
+		default:
 			printLine(ping, p)
 		}
 	}
+
 }
 
 func (pr *printer) statistics() {
