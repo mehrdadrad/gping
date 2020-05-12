@@ -1,7 +1,7 @@
 # gping
 [![Go Report Card](https://goreportcard.com/badge/github.com/mehrdadrad/gping)](https://goreportcard.com/report/github.com/mehrdadrad/gping)
 
-gping is a network tool to ping a target from a remote host. it works as client-server arch through gRPC protocol. it doesn't execute the ping shell command at the remote host instead it runs ping through a [Golang ping library](https://github.com/mehrdadrad/ping). use cases can be measurement full mesh network latency between nodes / data center or ping targets from different data center without SSH access to remote host.
+gping is a network tool to ping a target from a remote host. it works as client-server arch through gRPC protocol. it doesn't execute the ping shell command at the remote host instead it runs ping through [Golang ping library](https://github.com/mehrdadrad/ping). use cases can be measurement full mesh network latency between nodes / data center or ping targets from different data center without SSH access to remote host.
 
 ![gping](/gping.png?raw=true "gping")
 
@@ -67,7 +67,7 @@ in case of privileged icmp (it enables w/ -p or -privileged) you should give the
 ```
 sudo setcap cap_net_raw+ep ./gping
 ```
-for more information about setcap the cap_net_raw+ep: https://wiki.archlinux.org/index.php/Capabilities
+for more information about setcap cap_net_raw+ep: https://wiki.archlinux.org/index.php/Capabilities
 
 ## License
 This project is licensed under MIT license. Please read the LICENSE file.
