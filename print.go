@@ -88,7 +88,7 @@ func printLine(ping *proto.PingReply, p params) {
 	}
 
 	if ping.Err != "" {
-		fmt.Println(ping.Err)
+		fmt.Printf("%s for icmp_seq %d\n", ping.Err, ping.Seq)
 	} else {
 		fmt.Printf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n",
 			ping.Size, ping.Addr, ping.Seq, ping.Ttl, ping.Rtt)
