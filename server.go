@@ -23,8 +23,11 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 
 	p.SetCount(int(pingReq.Count))
 	p.SetTTL(int(pingReq.Ttl))
+	p.SetTOS(int(pingReq.Tos))
 	p.SetPacketSize(int(pingReq.Size))
+	p.SetSrcIPAddr(pingReq.SrcAddr)
 	p.SetInterval(pingReq.Interval)
+	p.SetTimeout(pingReq.Timeout)
 	p.SetPrivilegedICMP(s.privileged)
 
 	rc, err := p.RunWithContext(stream.Context())

@@ -2,7 +2,9 @@ package main
 
 import (
 	"errors"
+	"net"
 	"os"
+	"time"
 
 	cli "github.com/urfave/cli/v2"
 )
@@ -13,12 +15,15 @@ type params struct {
 	silent     bool
 	privileged bool
 	host       string
+	src        string
 	bind       string
 	remote     string
 	count      int
 	ttl        int
+	tos        int
 	size       int
 	interval   string
+	timeout    string
 }
 
 func getCli() (params, error) {
@@ -39,67 +44,81 @@ func getCli() (params, error) {
 `
 
 	flags := []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "server",
-			Aliases: []string{"s"},
-			Usage:   "-server or -s runs server",
-			EnvVars: []string{"GPING_SERVER"},
-		},
 		&cli.IntFlag{
 			Name:    "count",
 			Aliases: []string{"c"},
-			Usage:   "-count or -c sets ping count",
+			Usage:   "sets ping count",
 			Value:   4,
 			EnvVars: []string{"GPING_COUNT"},
 		},
 		&cli.IntFlag{
 			Name:    "ttl",
 			Aliases: []string{"t"},
-			Usage:   "-ttl or -t sets time to live outgoing packets",
+			Usage:   "sets the IP Time to Live",
 			Value:   64,
 			EnvVars: []string{"GPING_TTL"},
 		},
 		&cli.IntFlag{
+			Name:    "tos",
+			Aliases: []string{"q"},
+			Usage:   "sets quality of service in ICMP datagram",
+			Value:   0,
+			EnvVars: []string{"GPING_TOS"},
+		},
+		&cli.IntFlag{
 			Name:    "size",
-			Usage:   "-size bytes (data + ICMP header)",
+			Usage:   "sets size in bytes (data + ICMP header)",
 			Value:   64,
 			EnvVars: []string{"GPING_SIZE"},
 		},
 		&cli.StringFlag{
 			Name:    "interval",
 			Aliases: []string{"i"},
-			Usage:   "-intervale or -i sets time interval in format ns,us,ms,s",
+			Usage:   "sets time interval in format ns,us,ms,s",
 			Value:   "1s",
 			EnvVars: []string{"GPING_INTERVAL"},
 		},
 		&cli.StringFlag{
-			Name:    "remote",
-			Aliases: []string{"r"},
-			Usage:   "-remote 192.168.10.12:3055",
-			EnvVars: []string{"GPING_REMOTE"},
+			Name:    "timeout",
+			Aliases: []string{"W"},
+			Usage:   "sets time to wait for a respons in format ns,us,ms,s",
+			Value:   "2s",
+			EnvVars: []string{"GPING_TIMEOUT"},
 		},
 		&cli.StringFlag{
-			Name:    "bind",
-			Aliases: []string{"b"},
-			Usage:   "-bind 192.168.10.12:3055",
-			Value:   "0.0.0.0:3055",
-			EnvVars: []string{"GPING_BIND"},
+			Name:    "remote",
+			Aliases: []string{"r"},
+			Usage:   "sets remote server IP_ADDR:PORT",
+			EnvVars: []string{"GPING_REMOTE"},
 		},
 		&cli.BoolFlag{
 			Name:    "json",
-			Usage:   "-json prints statistics in json format",
+			Usage:   "prints statistics in json format",
 			EnvVars: []string{"GPING_JSON"},
 		},
 		&cli.BoolFlag{
 			Name:    "silent",
-			Usage:   "-silent prints just statistics",
+			Usage:   "prints just statistics",
 			EnvVars: []string{"GPING_SILENT"},
+		},
+		&cli.BoolFlag{
+			Name:    "server",
+			Aliases: []string{"s"},
+			Usage:   "runs server",
+			EnvVars: []string{"GPING_SERVER"},
+		},
+		&cli.StringFlag{
+			Name:    "bind",
+			Aliases: []string{"b"},
+			Usage:   "sets bind IP_ADDR:PORT [server]",
+			Value:   "0.0.0.0:3055",
+			EnvVars: []string{"GPING_BIND"},
 		},
 		&cli.BoolFlag{
 			Name:    "privileged",
 			Aliases: []string{"p"},
-			Usage:   "-privileged or -p enables ICMP privilaged mode",
-			EnvVars: []string{"GPING_PRIVILAGED"},
+			Usage:   "enables ICMP privileged mode [server]",
+			EnvVars: []string{"GPING_PRIVILEGED"},
 		},
 	}
 	app := &cli.App{
@@ -111,11 +130,13 @@ func getCli() (params, error) {
 				remote:     c.String("remote"),
 				count:      c.Int("count"),
 				ttl:        c.Int("ttl"),
+				tos:        c.Int("qos"),
 				size:       c.Int("size"),
 				json:       c.Bool("json"),
 				silent:     c.Bool("silent"),
 				privileged: c.Bool("privileged"),
 				interval:   c.String("interval"),
+				timeout:    c.String("timeout"),
 			}
 
 			p.host = c.Args().Get(0)
@@ -127,6 +148,22 @@ func getCli() (params, error) {
 			if len(p.remote) < 1 && !p.mode {
 				cli.ShowAppHelp(c)
 				return errors.New("remote not specified")
+			}
+
+			if _, err := time.ParseDuration(p.interval); err != nil {
+				return err
+			}
+
+			if _, err := time.ParseDuration(p.timeout); err != nil {
+				return err
+			}
+
+			if _, _, err := net.SplitHostPort(p.remote); err != nil && !p.mode {
+				return err
+			}
+
+			if _, _, err := net.SplitHostPort(p.bind); err != nil {
+				return err
 			}
 
 			return nil

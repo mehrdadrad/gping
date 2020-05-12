@@ -23,8 +23,10 @@ func pingClient(p params) chan *pb.PingReply {
 			DstAddr:  p.host,
 			Count:    int32(p.count),
 			Ttl:      int32(p.ttl),
+			Tos:      int32(p.tos),
 			Size:     int32(p.size),
 			Interval: p.interval,
+			Timeout:  p.timeout,
 		})
 
 	if err != nil {

@@ -4,10 +4,13 @@ option go_package = ".;proto";
 
 message PingRequest {
   string dst_addr = 1;
-  int32 count = 2;
-  int32 ttl = 3;
-  int32 size = 4;
-  string interval = 5;
+  string src_addr = 2;
+  int32 count = 3;
+  int32 ttl = 4;
+  int32 tos = 5;
+  int32 size = 6;
+  string timeout = 7;
+  string interval = 8;
 }
 
 message PingReply {
