@@ -72,6 +72,22 @@ sudo setcap cap_net_raw+ep ./gping
 ```
 for more information about setcap cap_net_raw+ep: https://wiki.archlinux.org/index.php/Capabilities
 
+## Supported platform
+
+|                    | Client | Server |
+|--------------------| -------|--------|
+|Linux               | &check;| &check;| 
+|macOS               | &check;| &check;| 
+|FreeBSD             | &check;| &check;| 
+|Windows             | &check;|        | 
+
+## Download gping v0.2.0 
+In case you don't want to compile, the below binaries are available (compiled by Go 1.14.2)
+- [Linux](https://github.com/mehrdadrad/gping/releases/download/v0.2.0/gping-linux)
+- [macOS](https://github.com/mehrdadrad/gping/releases/download/v0.2.0/gping-macos)
+- [FreeBSD](https://github.com/mehrdadrad/gping/releases/download/v0.2.0/gping-freebsd)
+- [Windows](https://github.com/mehrdadrad/gping/releases/download/v0.2.0/gping.exe)
+
 ## License
 This project is licensed under MIT license. Please read the LICENSE file.
 
