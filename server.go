@@ -4,10 +4,14 @@ import (
 	"log"
 	"net"
 
+	"github.com/mehrdadrad/gping/proto"
 	pb "github.com/mehrdadrad/gping/proto"
 	"github.com/mehrdadrad/ping"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/peer"
 )
+
+var isLogs bool
 
 type server struct {
 	privileged bool
@@ -54,14 +58,19 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 }
 
 func pingServer(p params) *grpc.Server {
+	isLogs = p.isLogs
+
 	l, err := net.Listen("tcp", p.bind)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("gping server has been started on ", l.Addr().String())
+	if isLogs {
+		log.Println("gping server has been started on ", l.Addr().String())
+	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.StreamInterceptor(gpingInterceptor))
+
 	go func() {
 		pb.RegisterPingServer(s, &server{p.privileged})
 		if err := s.Serve(l); err != nil {
@@ -70,4 +79,31 @@ func pingServer(p params) *grpc.Server {
 	}()
 
 	return s
+}
+
+func gpingInterceptor(srv interface{}, ss grpc.ServerStream,
+	info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	var clientAddr string
+	if p, ok := peer.FromContext(ss.Context()); ok && isLogs {
+		clientAddr = p.Addr.String()
+	}
+	err := handler(srv, &wrappedStream{ss, clientAddr})
+	return err
+}
+
+type wrappedStream struct {
+	grpc.ServerStream
+	clientAddr string
+}
+
+func (w *wrappedStream) RecvMsg(m interface{}) error {
+	err := w.ServerStream.RecvMsg(m)
+	if pingReq, ok := m.(*proto.PingRequest); ok && isLogs && err == nil {
+		log.Printf("received a ping request from %s to %s", w.clientAddr, pingReq.DstAddr)
+	}
+	return err
+}
+
+func (w *wrappedStream) SendMsg(m interface{}) error {
+	return w.ServerStream.SendMsg(m)
 }

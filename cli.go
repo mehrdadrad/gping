@@ -14,6 +14,7 @@ type params struct {
 	json       bool
 	silent     bool
 	privileged bool
+	isLogs     bool
 	host       string
 	src        string
 	bind       string
@@ -120,6 +121,11 @@ func getCli() (params, error) {
 			Usage:   "enables ICMP privileged mode [server]",
 			EnvVars: []string{"GPING_PRIVILEGED"},
 		},
+		&cli.BoolFlag{
+			Name:    "logs",
+			Usage:   "enables logging [server]",
+			EnvVars: []string{"GPING_PRIVILEGED"},
+		},
 	}
 	app := &cli.App{
 		Flags: flags,
@@ -135,6 +141,7 @@ func getCli() (params, error) {
 				json:       c.Bool("json"),
 				silent:     c.Bool("silent"),
 				privileged: c.Bool("privileged"),
+				isLogs:     c.Bool("logs"),
 				interval:   c.String("interval"),
 				timeout:    c.String("timeout"),
 			}
