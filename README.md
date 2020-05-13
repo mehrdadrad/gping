@@ -41,15 +41,16 @@ gping -c 5 -json -remote 192.168.10.15:3055 googl.com
   --count value, -c value     sets ping count (default: 4) [$GPING_COUNT]
   --ttl value, -t value       sets the IP Time to Live (default: 64) [$GPING_TTL]
   --tos value, -q value       sets quality of service in ICMP datagram (default: 0) [$GPING_TOS]
-  --size value                sets size in bytes (data + ICMP header) (default: 64) [$GPING_SIZE]
-  --interval value, -i value  sets time interval in format ns,us,ms,s (default: "1s") [$GPING_INTERVAL]
-  --timeout value, -W value   sets time to wait for a respons in format ns,us,ms,s (default: "2s") [$GPING_TIMEOUT]
+  --size value                sets the number of data bytes to be sent (data + ICMP header) (default: 64) [$GPING_SIZE]
+  --interval value, -i value  sets wait between sending each packet in format ns,us,ms,s (default: "1s") [$GPING_INTERVAL]
+  --timeout value, -W value   sets time to wait for an ICMP reply in format ns,us,ms,s (default: "2s") [$GPING_TIMEOUT]
   --remote value, -r value    sets remote server IP_ADDR:PORT [$GPING_REMOTE]
   --json                      prints statistics in json format (default: false) [$GPING_JSON]
   --silent                    prints just statistics (default: false) [$GPING_SILENT]
   --server, -s                runs server (default: false) [$GPING_SERVER]
   --bind value, -b value      sets bind IP_ADDR:PORT [server] (default: "0.0.0.0:3055") [$GPING_BIND]
   --privileged, -p            enables ICMP privileged mode [server] (default: false) [$GPING_PRIVILEGED]
+  --logs                      enables logging [server] (default: false) [$GPING_LOGS]
   --help, -h                  show help (default: false)
   --version, -v               print the version (default: false)
 ```

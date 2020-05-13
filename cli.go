@@ -68,21 +68,21 @@ func getCli() (params, error) {
 		},
 		&cli.IntFlag{
 			Name:    "size",
-			Usage:   "sets size in bytes (data + ICMP header)",
+			Usage:   "sets the number of data bytes to be sent (data + ICMP header)",
 			Value:   64,
 			EnvVars: []string{"GPING_SIZE"},
 		},
 		&cli.StringFlag{
 			Name:    "interval",
 			Aliases: []string{"i"},
-			Usage:   "sets time interval in format ns,us,ms,s",
+			Usage:   "sets wait between sending each packet in format ns,us,ms,s",
 			Value:   "1s",
 			EnvVars: []string{"GPING_INTERVAL"},
 		},
 		&cli.StringFlag{
 			Name:    "timeout",
 			Aliases: []string{"W"},
-			Usage:   "sets time to wait for a respons in format ns,us,ms,s",
+			Usage:   "sets time to wait for an ICMP reply in format ns,us,ms,s",
 			Value:   "2s",
 			EnvVars: []string{"GPING_TIMEOUT"},
 		},
@@ -124,7 +124,7 @@ func getCli() (params, error) {
 		&cli.BoolFlag{
 			Name:    "logs",
 			Usage:   "enables logging [server]",
-			EnvVars: []string{"GPING_PRIVILEGED"},
+			EnvVars: []string{"GPING_LOGS"},
 		},
 	}
 	app := &cli.App{
