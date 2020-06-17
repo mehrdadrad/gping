@@ -16,6 +16,7 @@ type printer struct {
 	max     float64
 	counter int
 	loss    int
+	err     string
 }
 
 func (pr *printer) print(ctx context.Context, p params, ping *proto.PingReply) {
@@ -27,6 +28,7 @@ func (pr *printer) print(ctx context.Context, p params, ping *proto.PingReply) {
 		pr.max = max(pr.max, ping.Rtt)
 	} else {
 		pr.loss++
+		pr.err = ping.Err
 	}
 
 	if p.json {
@@ -67,17 +69,17 @@ func (pr *printer) statistics() {
 
 func (pr *printer) statisticsJSON() {
 	a := struct {
-		Min               float64
-		Avg               float64
-		Max               float64
-		PacketLoss        float64
-		PacketTransmitted int
+		Min        float64 `json:"min_rtt,omitempty"`
+		Avg        float64 `json:"avg_rtt,omitempty"`
+		Max        float64 `json:"max_rtt,omitempty"`
+		Err        string  `json:"err,omitempty"`
+		PacketLoss float64 `json:"packet_loss,omitempty"`
 	}{
 		pr.min,
 		pr.avg,
 		pr.max,
+		pr.err,
 		float64(pr.loss*100) / float64(pr.counter),
-		pr.counter,
 	}
 
 	b, _ := json.Marshal(a)
