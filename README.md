@@ -10,9 +10,9 @@ gping is a network tool to ping a target from a remote host. it works as client-
 #gping -server
 ```
 
-## Client side
+## Single host
 ```
-#gping -c 5 -remote 192.168.10.15:3055 googl.com
+#gping -c 5 -r 192.168.10.15:3055 googl.com
 64 bytes from 172.217.14.78: icmp_seq=0 ttl=54 time=4.129 ms
 64 bytes from 172.217.14.78: icmp_seq=1 ttl=54 time=2.134 ms
 64 bytes from 172.217.14.78: icmp_seq=2 ttl=54 time=2.220 ms
@@ -22,13 +22,41 @@ gping is a network tool to ping a target from a remote host. it works as client-
 5 packets transmitted, 5 packets received, 0.0% packet loss
 Round-trip min/avg/max = 2.134/4.177/5.920 ms
 ```
-## Client side JSON format
+## Multiple hosts
 ```
-gping -c 5 -json -remote 192.168.10.15:3055 googl.com
+gping -c 5 -r 192.168.10.15:3055 yahoo.com google.com juniper.com
 ```
 ```json
-{"Min":2.142,"Avg":20.54875,"Max":32.684,"PacketLoss":0,"PacketTransmitted":5}
+[
+  {
+    "addr": "google.com",
+    "min_rtt": 2.531,
+    "avg_rtt": 3.859,
+    "max_rtt": 4.859
+  },
+  {
+    "addr": "yahoo.com",
+    "min_rtt": 2.337,
+    "avg_rtt": 3.615,
+    "max_rtt": 4.431
+  },
+  {
+    "addr": "juniper.com",
+    "packet_loss": 100,
+    "err": "request timeout"
+  }
+]
 ```
+
+## Single host JSON format
+```
+gping -c 5 -json -r 192.168.10.15:3055 yahoo.com
+```
+```json
+{"min_rtt":2.444,"avg_rtt":3.855,"max_rtt":4.625}
+```
+
+
 
 ## Quick Help
 ```
