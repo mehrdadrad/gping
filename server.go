@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
+	"sync"
 
 	"github.com/mehrdadrad/gping/proto"
 	pb "github.com/mehrdadrad/gping/proto"
@@ -55,6 +57,72 @@ func (s *server) GetPing(pingReq *pb.PingRequest, stream pb.Ping_GetPingServer) 
 		errStr = ""
 	}
 	return nil
+}
+
+func (s *server) GetBulkPing(ctx context.Context, pingBulkReq *pb.PingBulkRequest) (*pb.PingBulkResult, error) {
+	var (
+		wg          sync.WaitGroup
+		pingResChan = make(chan *pb.PingResult, 1)
+	)
+
+	for _, dstAddr := range pingBulkReq.DstAddrs {
+		wg.Add(1)
+		go func(dstAddr string) {
+			defer wg.Done()
+			r := s.pingWithResult(ctx, dstAddr, pingBulkReq)
+			pingResChan <- r
+		}(dstAddr)
+	}
+
+	go func() {
+		wg.Wait()
+		close(pingResChan)
+	}()
+
+	results := &pb.PingBulkResult{}
+	for r := range pingResChan {
+		results.Results = append(results.Results, r)
+	}
+
+	return results, nil
+}
+
+func (s *server) pingWithResult(ctx context.Context, addr string, req *pb.PingBulkRequest) *pb.PingResult {
+	pr := &pb.PingResult{}
+	pr.Addr = addr
+	p, err := ping.New(addr)
+	if err != nil {
+		pr.Err = err.Error()
+		return pr
+	}
+
+	p.SetCount(int(req.Count))
+	p.SetTTL(int(req.Ttl))
+	p.SetTOS(int(req.Tos))
+	p.SetPacketSize(int(req.Size))
+	p.SetSrcIPAddr(req.SrcAddr)
+	p.SetInterval(req.Interval)
+	p.SetTimeout(req.Timeout)
+	p.SetPrivilegedICMP(s.privileged)
+
+	rc, err := p.RunWithContext(ctx)
+	if err != nil {
+		pr.Err = err.Error()
+		return pr
+	}
+
+	for r := range rc {
+		if r.Err != nil {
+			pr.PacketLoss++
+			pr.Err = r.Err.Error()
+			continue
+		}
+		pr.MinRtt = min(pr.MinRtt, r.RTT)
+		pr.AvgRtt = avg(pr.AvgRtt, r.RTT)
+		pr.MaxRtt = max(pr.MaxRtt, r.RTT)
+	}
+
+	return pr
 }
 
 func pingServer(p params) *grpc.Server {

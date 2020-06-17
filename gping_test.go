@@ -1,15 +1,17 @@
 package main
 
 import (
+	"context"
 	"os"
 	"testing"
 )
 
 func TestServer(t *testing.T) {
+	ctx := context.Background()
 	p := params{
 		bind:     "127.0.0.1:3055",
 		remote:   "127.0.0.1:3055",
-		host:     "127.0.0.1",
+		hosts:    []string{"127.0.0.1"},
 		count:    1,
 		interval: "1s",
 		timeout:  "2s",
@@ -20,7 +22,7 @@ func TestServer(t *testing.T) {
 	s := pingServer(p)
 	defer s.Stop()
 
-	rc := pingClient(p)
+	rc := pingClient(ctx, p)
 	r := <-rc
 	if r.Err != "" {
 		t.Error(r.Err)
@@ -44,10 +46,11 @@ func TestServer(t *testing.T) {
 }
 
 func TestServerTimeout(t *testing.T) {
+	ctx := context.Background()
 	p := params{
 		bind:     "127.0.0.1:3055",
 		remote:   "127.0.0.1:3055",
-		host:     "127.0.0.55",
+		hosts:    []string{"127.0.0.55"},
 		count:    1,
 		interval: "1s",
 		timeout:  "2s",
@@ -58,7 +61,7 @@ func TestServerTimeout(t *testing.T) {
 	s := pingServer(p)
 	defer s.Stop()
 
-	rc := pingClient(p)
+	rc := pingClient(ctx, p)
 	r := <-rc
 	if r.Err != "Request timeout" {
 		t.Error(r.Err)
@@ -77,8 +80,8 @@ func TestGetCLI(t *testing.T) {
 		t.Error("expected count 100 but got", p.count)
 	}
 
-	if p.host != "google.com" {
-		t.Error("expected host google.com but got", p.host)
+	if p.hosts[0] != "google.com" {
+		t.Error("expected host google.com but got", p.hosts)
 	}
 
 	if p.remote != "localhost:3055" {
@@ -116,4 +119,13 @@ func TestGetCLIBindValidation(t *testing.T) {
 	if err == nil {
 		t.Error("bind validation error")
 	}
+}
+
+func TestPrecision(t *testing.T) {
+	p := 3.14159265359
+	r := precision(p)
+	if r != 3.142 {
+		t.Error("expect 3.141 but got", r)
+	}
+
 }

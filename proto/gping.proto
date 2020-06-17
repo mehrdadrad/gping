@@ -13,6 +13,17 @@ message PingRequest {
   string interval = 8;
 }
 
+message PingBulkRequest {
+  repeated string dst_addrs = 1;
+  string src_addr = 2;
+  int32 count = 3;
+  int32 ttl = 4;
+  int32 tos = 5;
+  int32 size = 6;
+  string timeout = 7;
+  string interval = 8;
+}
+
 message PingReply {
   double rtt = 1;
   int32 seq = 2;
@@ -22,6 +33,20 @@ message PingReply {
   string err = 6;
 }
 
+message PingResult {
+  string addr = 1;
+  double min_rtt = 2;
+  double avg_rtt = 3;
+  double max_rtt = 4;
+  int32  packet_loss = 5;
+  string err = 6;
+}
+
+message PingBulkResult {
+  repeated PingResult results = 1;
+}
+
 service Ping {
   rpc GetPing(PingRequest) returns (stream PingReply) {}
+  rpc GetBulkPing(PingBulkRequest) returns (PingBulkResult) {}
 }

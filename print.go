@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/mehrdadrad/gping/proto"
 )
@@ -16,7 +18,7 @@ type printer struct {
 	loss    int
 }
 
-func (pr *printer) print(ping *proto.PingReply, p params, sig chan os.Signal) {
+func (pr *printer) print(ctx context.Context, p params, ping *proto.PingReply) {
 	pr.counter++
 
 	if len(ping.Err) < 1 {
@@ -29,7 +31,7 @@ func (pr *printer) print(ping *proto.PingReply, p params, sig chan os.Signal) {
 
 	if p.json {
 		select {
-		case <-sig:
+		case <-ctx.Done():
 			pr.statisticsJSON()
 			os.Exit(0)
 		default:
@@ -45,7 +47,7 @@ func (pr *printer) print(ping *proto.PingReply, p params, sig chan os.Signal) {
 		pr.statistics()
 	} else {
 		select {
-		case <-sig:
+		case <-ctx.Done():
 			printLine(ping, p)
 			pr.statistics()
 			os.Exit(0)
@@ -99,7 +101,7 @@ func avg(a, b float64) float64 {
 	if a == 0.0 {
 		return b
 	}
-	return (a + b) / 2
+	return precision((a + b) / 2)
 }
 
 func min(a, b float64) float64 {
@@ -124,4 +126,9 @@ func max(a, b float64) float64 {
 	}
 
 	return a
+}
+
+func precision(f float64) float64 {
+	f, _ = strconv.ParseFloat(fmt.Sprintf("%.3f", f), 64)
+	return f
 }

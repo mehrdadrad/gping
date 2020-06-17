@@ -15,7 +15,7 @@ type params struct {
 	silent     bool
 	privileged bool
 	isLogs     bool
-	host       string
+	hosts      []string
 	src        string
 	bind       string
 	remote     string
@@ -34,7 +34,7 @@ func getCli() (params, error) {
 	gRPC Ping {{.Version}}
 
 	usage:
-	{{.HelpName}} {{if .VisibleFlags}}[options]{{end}}{{if .Commands}} host {{end}} 
+	{{.HelpName}} {{if .VisibleFlags}}[options]{{end}}{{if .Commands}} host(s) {{end}} 
 	{{if len .Authors}}
 	COMMANDS:
 	{{range .Commands}}{{if not .HideHelp}}   {{join .Names ", "}}{{ "\t"}}{{.Usage}}{{ "\n" }}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
@@ -146,7 +146,7 @@ func getCli() (params, error) {
 				timeout:    c.String("timeout"),
 			}
 
-			p.host = c.Args().Get(0)
+			p.hosts = c.Args().Slice()
 			if c.NArg() < 1 && !p.mode {
 				cli.ShowAppHelp(c)
 				return errors.New("host not specified")
