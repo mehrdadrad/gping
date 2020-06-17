@@ -122,6 +122,8 @@ func (s *server) pingWithResult(ctx context.Context, addr string, req *pb.PingBu
 		pr.MaxRtt = max(pr.MaxRtt, r.RTT)
 	}
 
+	pr.PacketLoss = (pr.PacketLoss * 100) / req.Count
+
 	return pr
 }
 
