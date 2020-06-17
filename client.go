@@ -61,7 +61,7 @@ func pingBulkClient(ctx context.Context, p params) {
 	c := pb.NewPingClient(conn)
 	resp, err := c.GetBulkPing(ctx,
 		&pb.PingBulkRequest{
-			DstAddrs: p.hosts,
+			Hosts:    p.hosts,
 			Count:    int32(p.count),
 			Ttl:      int32(p.ttl),
 			Tos:      int32(p.tos),

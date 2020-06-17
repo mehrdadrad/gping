@@ -63,7 +63,7 @@ gping -c 5 -json -r 192.168.10.15:3055 yahoo.com
   gRPC Ping v0.2.0
 
   usage:
-  gping [options] host  
+  gping [options] host(s) 
   
   options:
   --count value, -c value     sets ping count (default: 4) [$GPING_COUNT]

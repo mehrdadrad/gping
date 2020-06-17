@@ -65,13 +65,13 @@ func (s *server) GetBulkPing(ctx context.Context, pingBulkReq *pb.PingBulkReques
 		pingResChan = make(chan *pb.PingResult, 1)
 	)
 
-	for _, dstAddr := range pingBulkReq.DstAddrs {
+	for _, host := range pingBulkReq.Hosts {
 		wg.Add(1)
-		go func(dstAddr string) {
+		go func(host string) {
 			defer wg.Done()
-			r := s.pingWithResult(ctx, dstAddr, pingBulkReq)
+			r := s.pingWithResult(ctx, host, pingBulkReq)
 			pingResChan <- r
-		}(dstAddr)
+		}(host)
 	}
 
 	go func() {
@@ -87,10 +87,10 @@ func (s *server) GetBulkPing(ctx context.Context, pingBulkReq *pb.PingBulkReques
 	return results, nil
 }
 
-func (s *server) pingWithResult(ctx context.Context, addr string, req *pb.PingBulkRequest) *pb.PingResult {
+func (s *server) pingWithResult(ctx context.Context, host string, req *pb.PingBulkRequest) *pb.PingResult {
 	pr := &pb.PingResult{}
-	pr.Addr = addr
-	p, err := ping.New(addr)
+	pr.Host = host
+	p, err := ping.New(host)
 	if err != nil {
 		pr.Err = err.Error()
 		return pr
