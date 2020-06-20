@@ -10,28 +10,32 @@ import (
 )
 
 type params struct {
-	mode       bool
-	json       bool
-	silent     bool
-	privileged bool
-	isLogs     bool
-	hosts      []string
-	src        string
-	bind       string
-	remote     string
-	count      int
-	ttl        int
-	tos        int
-	size       int
-	interval   string
-	timeout    string
+	mode        bool
+	json        bool
+	silent      bool
+	privileged  bool
+	isLogs      bool
+	hosts       []string
+	src         string
+	bind        string
+	remote      string
+	count       int
+	ttl         int
+	tos         int
+	size        int
+	interval    string
+	timeout     string
+	cert        string
+	key         string
+	clientsCert string
+	caCert      string
 }
 
 func getCli() (params, error) {
 	p := params{}
 
 	cli.AppHelpTemplate = `
-	gRPC Ping {{.Version}}
+	gping version {{.Version}} github.com/mehrdadrad/gping
 
 	usage:
 	{{.HelpName}} {{if .VisibleFlags}}[options]{{end}}{{if .Commands}} host(s) {{end}} 
@@ -109,6 +113,26 @@ func getCli() (params, error) {
 			EnvVars: []string{"GPING_SERVER"},
 		},
 		&cli.StringFlag{
+			Name:    "cert",
+			Usage:   "TLS certificate file name",
+			EnvVars: []string{"GPING_CERT"},
+		},
+		&cli.StringFlag{
+			Name:    "key",
+			Usage:   "private key file name",
+			EnvVars: []string{"GPING_KEY"},
+		},
+		&cli.StringFlag{
+			Name:    "clients-cert",
+			Usage:   "TLS clients certificate file name",
+			EnvVars: []string{"GPING_CLIENTS_CERT"},
+		},
+		&cli.StringFlag{
+			Name:    "ca-cert",
+			Usage:   "certificate file to verify the server",
+			EnvVars: []string{"GPING_CA_CERT"},
+		},
+		&cli.StringFlag{
 			Name:    "bind",
 			Aliases: []string{"b"},
 			Usage:   "sets bind IP_ADDR:PORT [server]",
@@ -131,19 +155,23 @@ func getCli() (params, error) {
 		Flags: flags,
 		Action: func(c *cli.Context) error {
 			p = params{
-				mode:       c.Bool("server"),
-				bind:       c.String("bind"),
-				remote:     c.String("remote"),
-				count:      c.Int("count"),
-				ttl:        c.Int("ttl"),
-				tos:        c.Int("qos"),
-				size:       c.Int("size"),
-				json:       c.Bool("json"),
-				silent:     c.Bool("silent"),
-				privileged: c.Bool("privileged"),
-				isLogs:     c.Bool("logs"),
-				interval:   c.String("interval"),
-				timeout:    c.String("timeout"),
+				mode:        c.Bool("server"),
+				bind:        c.String("bind"),
+				remote:      c.String("remote"),
+				count:       c.Int("count"),
+				ttl:         c.Int("ttl"),
+				tos:         c.Int("qos"),
+				size:        c.Int("size"),
+				json:        c.Bool("json"),
+				silent:      c.Bool("silent"),
+				privileged:  c.Bool("privileged"),
+				isLogs:      c.Bool("logs"),
+				interval:    c.String("interval"),
+				timeout:     c.String("timeout"),
+				cert:        c.String("cert"),
+				key:         c.String("key"),
+				clientsCert: c.String("clients-cert"),
+				caCert:      c.String("ca-cert"),
 			}
 
 			p.hosts = c.Args().Slice()
@@ -175,7 +203,7 @@ func getCli() (params, error) {
 
 			return nil
 		},
-		Version: "v0.2.0",
+		Version: "0.3.0",
 	}
 
 	err := app.Run(os.Args)

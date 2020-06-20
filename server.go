@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
 	"log"
 	"net"
 	"sync"
@@ -10,6 +13,7 @@ import (
 	pb "github.com/mehrdadrad/gping/proto"
 	"github.com/mehrdadrad/ping"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
 )
 
@@ -139,7 +143,21 @@ func pingServer(p params) *grpc.Server {
 		log.Println("gping server has been started on ", l.Addr().String())
 	}
 
-	s := grpc.NewServer(grpc.StreamInterceptor(gpingInterceptor))
+	ops := []grpc.ServerOption{}
+	ops = append(ops, grpc.StreamInterceptor(gpingInterceptor))
+
+	if p.cert != "" && p.key != "" && p.clientsCert != "" {
+		if creds, err := transportCreds(p.cert, p.key, p.clientsCert); err != nil {
+			log.Fatal(err)
+		} else {
+			ops = append(ops, grpc.Creds(creds))
+			if isLogs {
+				log.Println("mTLS has been enabled")
+			}
+		}
+	}
+
+	s := grpc.NewServer(ops...)
 
 	go func() {
 		pb.RegisterPingServer(s, &server{p.privileged})
@@ -176,4 +194,27 @@ func (w *wrappedStream) RecvMsg(m interface{}) error {
 
 func (w *wrappedStream) SendMsg(m interface{}) error {
 	return w.ServerStream.SendMsg(m)
+}
+
+func transportCreds(certFile, keyFile, clientsCertFile string) (credentials.TransportCredentials, error) {
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	clientsCert, err := ioutil.ReadFile(clientsCertFile)
+	if err != nil {
+		return nil, err
+	}
+
+	certPool := x509.NewCertPool()
+	certPool.AppendCertsFromPEM(clientsCert)
+
+	tc := credentials.NewTLS(&tls.Config{
+		Certificates: []tls.Certificate{cert},
+		ClientCAs:    certPool,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+	})
+
+	return tc, nil
 }
