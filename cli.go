@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"io"
 	"net"
 	"os"
 	"time"
@@ -151,6 +152,19 @@ func getCli() (params, error) {
 			EnvVars: []string{"GPING_LOGS"},
 		},
 	}
+
+	oldVersionPrinter := cli.VersionPrinter
+	cli.VersionPrinter = func(c *cli.Context) {
+		oldVersionPrinter(c)
+		os.Exit(0)
+	}
+
+	oldHelpPrinter := cli.HelpPrinter
+	cli.HelpPrinter = func(w io.Writer, templ string, data interface{}) {
+		oldHelpPrinter(w, templ, data)
+		os.Exit(0)
+	}
+
 	app := &cli.App{
 		Flags: flags,
 		Action: func(c *cli.Context) error {
