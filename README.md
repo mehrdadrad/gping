@@ -37,19 +37,19 @@ gping -c 5 -r 192.168.10.15:3055 yahoo.com google.com juniper.com
 ```json
 [
   {
-    "addr": "google.com",
+    "host": "google.com",
     "min_rtt": 2.531,
     "avg_rtt": 3.859,
     "max_rtt": 4.859
   },
   {
-    "addr": "yahoo.com",
+    "host": "yahoo.com",
     "min_rtt": 2.337,
     "avg_rtt": 3.615,
     "max_rtt": 4.431
   },
   {
-    "addr": "juniper.com",
+    "host": "juniper.com",
     "packet_loss": 100,
     "err": "request timeout"
   }
