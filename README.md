@@ -3,6 +3,14 @@
 
 gping is a network tool to ping a target from a remote host. it works as client-server arch through gRPC protocol. it doesn't execute the ping shell command at the remote host instead it runs ping through [Golang ping library](https://github.com/mehrdadrad/ping). use cases can be measurement full mesh network latency between nodes / data center or ping targets from different data center without SSH access to remote host.
 
+## Features
+
+- ping from remote host through gRPC
+- ICMP raw socket and UDP
+- ping multiple hosts 
+- IPv4 and IPv6
+- mutual TLS authentication
+
 ![gping](/gping.png?raw=true "gping")
 
 ## Server side
@@ -60,10 +68,8 @@ gping -c 5 -json -r 192.168.10.15:3055 yahoo.com
 
 ## Quick Help
 ```
-  gRPC Ping v0.2.0
-
   usage:
-  gping [options] host(s) 
+  gping [options] host(s)  
   
   options:
   --count value, -c value     sets ping count (default: 4) [$GPING_COUNT]
@@ -76,25 +82,24 @@ gping -c 5 -json -r 192.168.10.15:3055 yahoo.com
   --json                      prints statistics in json format (default: false) [$GPING_JSON]
   --silent                    prints just statistics (default: false) [$GPING_SILENT]
   --server, -s                runs server (default: false) [$GPING_SERVER]
+  --cert value                TLS certificate file name [$GPING_CERT]
+  --key value                 private key file name [$GPING_KEY]
+  --clients-cert value        TLS clients certificate file name [$GPING_CLIENTS_CERT]
+  --ca-cert value             certificate file to verify the server [$GPING_CA_CERT]
   --bind value, -b value      sets bind IP_ADDR:PORT [server] (default: "0.0.0.0:3055") [$GPING_BIND]
   --privileged, -p            enables ICMP privileged mode [server] (default: false) [$GPING_PRIVILEGED]
   --logs                      enables logging [server] (default: false) [$GPING_LOGS]
   --help, -h                  show help (default: false)
-  --version, -v               print the version (default: false)
+  --version, -v               print the version (default: false) 
 ```
 
-## Build
-It can be built for Linux and macOS
-```
-#go build
-```
-note: server side works in two modes 1- unprivileged icmp (default) 2- privileged icmp
+note: server side supports unprivileged ICMP / UDP (default) and privileged ICMP / raw socket
 
-the first case you need to run the below command on Linux:
+If you use gping server in unprivileged mode, you need to run the below command on Linux:
 ```
 sudo sysctl -w net.ipv4.ping_group_range="0   2147483647"
 ```
-in case of privileged icmp (it enables w/ -p or -privileged) you should give the raw socket permission by the below or just run by superuser.
+in case of privileged ICMP (it enables w/ -p or -privileged) you should give the raw socket permission by the below or just run by superuser.
 ```
 sudo setcap cap_net_raw+ep ./gping
 ```
