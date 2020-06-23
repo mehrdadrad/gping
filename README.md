@@ -9,7 +9,7 @@ gping is a network tool to ping a target from a remote host. it works as client-
 - ICMP raw socket and UDP
 - ping multiple hosts 
 - IPv4 and IPv6
-- mutual TLS authentication
+- [mutual TLS authentication](https://github.com/mehrdadrad/gping/wiki/Set-Up-Mutual-TLS-Authentication)
 
 ![gping](/gping.png?raw=true "gping")
 
@@ -114,12 +114,12 @@ for more information about setcap cap_net_raw+ep: https://wiki.archlinux.org/ind
 |FreeBSD             | &check;| &check;| 
 |Windows             | &check;|        | 
 
-## Download gping v0.2.0 
-In case you don't want to compile, the below binaries are available (compiled by Go 1.14.2)
-- [Linux](https://github.com/mehrdadrad/gping/releases/download/v0.2.0/gping-linux)
-- [macOS](https://github.com/mehrdadrad/gping/releases/download/v0.2.0/gping-macos)
-- [FreeBSD](https://github.com/mehrdadrad/gping/releases/download/v0.2.0/gping-freebsd)
-- [Windows](https://github.com/mehrdadrad/gping/releases/download/v0.2.0/gping.exe)
+## Download gping v0.3.0 
+In case you don't want to compile, the below binaries are available (compiled by Go 1.14.3)
+- [Linux](https://github.com/mehrdadrad/gping/releases/download/v0.3.0/gping-linux)
+- [macOS](https://github.com/mehrdadrad/gping/releases/download/v0.3.0/gping-macos)
+- [FreeBSD](https://github.com/mehrdadrad/gping/releases/download/v0.3.0/gping-freebsd)
+- [Windows](https://github.com/mehrdadrad/gping/releases/download/v0.3.0/gping.exe)
 
 ## License
 This project is licensed under MIT license. Please read the LICENSE file.
